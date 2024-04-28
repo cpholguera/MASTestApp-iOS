@@ -11,6 +11,7 @@
 		CBFA8C0A2BDE94710047F3A3 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBFA8C092BDE94710047F3A3 /* ContentView.swift */; };
 		CBFA8C0C2BDE94720047F3A3 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CBFA8C0B2BDE94720047F3A3 /* Assets.xcassets */; };
 		CBFA8C0F2BDE94720047F3A3 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CBFA8C0E2BDE94720047F3A3 /* Preview Assets.xcassets */; };
+		CBFA8C162BDE97ED0047F3A3 /* MastgTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBFA8C152BDE97ED0047F3A3 /* MastgTest.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -19,6 +20,7 @@
 		CBFA8C092BDE94710047F3A3 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		CBFA8C0B2BDE94720047F3A3 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		CBFA8C0E2BDE94720047F3A3 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		CBFA8C152BDE97ED0047F3A3 /* MastgTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MastgTest.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -55,6 +57,7 @@
 				CBFA8C092BDE94710047F3A3 /* ContentView.swift */,
 				CBFA8C0B2BDE94720047F3A3 /* Assets.xcassets */,
 				CBFA8C0D2BDE94720047F3A3 /* Preview Content */,
+				CBFA8C152BDE97ED0047F3A3 /* MastgTest.swift */,
 			);
 			path = MASTestApp;
 			sourceTree = "<group>";
@@ -137,6 +140,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CBFA8C162BDE97ED0047F3A3 /* MastgTest.swift in Sources */,
 				CBFA8C0A2BDE94710047F3A3 /* ContentView.swift in Sources */,
 				CBFA8C082BDE94710047F3A3 /* MASTestAppApp.swift in Sources */,
 			);
@@ -280,6 +284,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 14.4;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -309,6 +314,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 14.4;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
