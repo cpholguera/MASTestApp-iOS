@@ -16,6 +16,7 @@ struct ContentView: View {
                 Text("OWASP MAS")
                     .font(.title)
                     .fontWeight(.bold)
+                    .font(.custom("Helvetica Neue", size: 24))
 
                 Spacer()
 
@@ -27,10 +28,17 @@ struct ContentView: View {
                 }) {
                     Text("Start")
                         .foregroundColor(.white)
-                        .padding()
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 10)
+                        .font(.custom("Helvetica Neue", size: 14))
                 }
-                .background(Color.blue)
-                .cornerRadius(10)
+                .background(
+                    LinearGradient(gradient: Gradient(colors: [
+                        Color(red: 2/255, green: 214/255, blue: 169/255),
+                        Color(red: 71/255, green: 159/255, blue: 255/255)
+                    ]), startPoint: .leading, endPoint: .trailing)
+                )
+                .cornerRadius(30)
                 .padding(.horizontal)
             }
             .padding()
