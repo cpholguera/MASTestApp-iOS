@@ -8,27 +8,46 @@
 import SwiftUI
 
 struct ContentView: View {
-    @State private var displayText: String = "OWASP MAS" // Initial text
+    @State private var displayText: String = "" // Initial text
 
     var body: some View {
-        VStack(spacing: 50) {
-            Text(displayText)  // This Text will display the updated value
-                .font(.title)
-                .padding()
+        VStack {
+            HStack {
+                Text("OWASP MAS")
+                    .font(.title)
+                    .fontWeight(.bold)
 
-            Button(action: {
-                // Call the function and update displayText with the result
-                MastgTest.mastgTest { result in
-                    self.displayText = result
+                Spacer()
+
+                Button(action: {
+                    // Simulate calling a function and updating displayText
+                    MastgTest.mastgTest { result in
+                        self.displayText = result
+                    }
+                }) {
+                    Text("Start")
+                        .foregroundColor(.white)
+                        .padding()
                 }
-            }) {
-                Text("Start")
+                .background(Color.blue)
+                .cornerRadius(10)
+                .padding(.horizontal)
+            }
+            .padding()
+
+            // Text area with console style
+            ScrollView {
+                Text(displayText)
+                    .font(.system(.body, design: .monospaced))
                     .foregroundColor(.white)
+                    .frame(maxWidth: .infinity, alignment: .leading)
                     .padding()
             }
-            .background(Color.blue)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(Color(UIColor.darkGray))
             .cornerRadius(10)
             .padding()
         }
+        .padding()
     }
 }
