@@ -89,3 +89,8 @@ fastlane/test_output
 
 iOSInjectionProject/
 
+*.xcarchive
+*.log
+DistributionSummary.plist
+output
+.DS_Store
