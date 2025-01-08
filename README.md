@@ -34,9 +34,7 @@ git clone https://github.com/cpholguera/MASTestApp-iOS.git
 
 ### Run the Extraction Script
 
-Install **jadx** and **apktool** and ensure they're available in your path.
-
-Launch the app in the emulator and run the provided script:
+Run the provided script:
 
 ```sh
 ./tools/extract-code-for-mastg-demo.sh
