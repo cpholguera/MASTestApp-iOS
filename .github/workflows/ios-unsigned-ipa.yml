@@ -26,43 +26,27 @@ jobs:
         echo "DEFAULT_SCHEME=$default" >> $GITHUB_ENV
         echo "Using default scheme: $default"
 
-    - name: Disable code signing in Xcode project
-      run: |
-        /usr/libexec/PlistBuddy -c "Set :objects:CBFA8C132BDE94720047F3A3:buildSettings:CODE_SIGN_IDENTITY \"\"" "MASTestApp.xcodeproj/project.pbxproj"
-        /usr/libexec/PlistBuddy -c "Set :objects:CBFA8C132BDE94720047F3A3:buildSettings:CODE_SIGN_STYLE \"Manual\"" "MASTestApp.xcodeproj/project.pbxproj"
-        /usr/libexec/PlistBuddy -c "Set :objects:CBFA8C132BDE94720047F3A3:buildSettings:DEVELOPMENT_TEAM \"\"" "MASTestApp.xcodeproj/project.pbxproj"
-        /usr/libexec/PlistBuddy -c "Set :objects:CBFA8C132BDE94720047F3A3:buildSettings:PROVISIONING_PROFILE_SPECIFIER \"\"" "MASTestApp.xcodeproj/project.pbxproj"
-
-        /usr/libexec/PlistBuddy -c "Set :objects:CBFA8C142BDE94720047F3A3:buildSettings:CODE_SIGN_IDENTITY \"\"" "MASTestApp.xcodeproj/project.pbxproj"
-        /usr/libexec/PlistBuddy -c "Set :objects:CBFA8C142BDE94720047F3A3:buildSettings:CODE_SIGN_STYLE \"Manual\"" "MASTestApp.xcodeproj/project.pbxproj"
-        /usr/libexec/PlistBuddy -c "Set :objects:CBFA8C142BDE94720047F3A3:buildSettings:DEVELOPMENT_TEAM \"\"" "MASTestApp.xcodeproj/project.pbxproj"
-        /usr/libexec/PlistBuddy -c "Set :objects:CBFA8C142BDE94720047F3A3:buildSettings:PROVISIONING_PROFILE_SPECIFIER \"\"" "MASTestApp.xcodeproj/project.pbxproj"
-
     - name: Build the app (unsigned)
       run: |
-        xcodebuild clean archive \
+        xcodebuild archive \
           -project "MASTestApp.xcodeproj" \
           -scheme $DEFAULT_SCHEME \
+          -archivePath $GITHUB_WORKSPACE/build/MASTestApp.xcarchive \
           -configuration Release \
-          -archivePath $GITHUB_WORKSPACE/build/MASTestApp.xcarchive \
-          CODE_SIGNING_ALLOWED=NO \
           CODE_SIGN_IDENTITY="" \
-          PROVISIONING_PROFILE_SPECIFIER=""
+          CODE_SIGNING_REQUIRED=NO \
+          CODE_SIGNING_ALLOWED=NO
 
-    - name: Export IPA (unsigned)
+    - name: Create IPA manually
       run: |
-        mkdir -p output
-        xcodebuild -exportArchive \
-          -archivePath $GITHUB_WORKSPACE/build/MASTestApp.xcarchive \
-          -exportPath output \
-          -exportOptionsPlist ExportOptionsUnsigned.plist \
-          CODE_SIGNING_ALLOWED=NO \
-          CODE_SIGN_IDENTITY="" \
-          PROVISIONING_PROFILE_SPECIFIER="" \
-          DEVELOPMENT_TEAM=""
+        cd $GITHUB_WORKSPACE/build/MASTestApp.xcarchive/Products
+        mv Applications Payload
+        zip -r MASTestApp.zip Payload
+        mv MASTestApp.zip MASTestApp.ipa
+        mv MASTestApp.ipa $GITHUB_WORKSPACE/output/
 
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
         name: Unsigned-iOS-App
-        path: output/*.ipa
+        path: output/MASTestApp.ipa
