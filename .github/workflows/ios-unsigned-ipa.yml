@@ -26,6 +26,13 @@ jobs:
         echo "DEFAULT_SCHEME=$default" >> $GITHUB_ENV
         echo "Using default scheme: $default"
 
+    - name: Disable code signing in Xcode project
+      run: |
+        /usr/libexec/PlistBuddy -c "Set :CODE_SIGN_IDENTITY \"\"" "MASTestApp.xcodeproj/project.pbxproj"
+        /usr/libexec/PlistBuddy -c "Set :PROVISIONING_PROFILE_SPECIFIER \"\"" "MASTestApp.xcodeproj/project.pbxproj"
+        /usr/libexec/PlistBuddy -c "Set :DEVELOPMENT_TEAM \"\"" "MASTestApp.xcodeproj/project.pbxproj"
+        /usr/libexec/PlistBuddy -c "Set :CODE_SIGN_STYLE Manual" "MASTestApp.xcodeproj/project.pbxproj"
+
     - name: Build the app (unsigned)
       run: |
         xcodebuild clean archive \
@@ -33,7 +40,10 @@ jobs:
           -scheme $DEFAULT_SCHEME \
           -configuration Release \
           -archivePath $GITHUB_WORKSPACE/build/MASTestApp.xcarchive \
-          CODE_SIGNING_ALLOWED=NO
+          CODE_SIGNING_ALLOWED=NO \
+          CODE_SIGN_IDENTITY="" \
+          PROVISIONING_PROFILE_SPECIFIER="" \
+          OTHER_CODE_SIGN_FLAGS="--deep --force --sign -"
 
     - name: Export IPA (unsigned)
       run: |
@@ -44,7 +54,8 @@ jobs:
           -exportOptionsPlist ExportOptionsUnsigned.plist \
           CODE_SIGNING_ALLOWED=NO \
           CODE_SIGN_IDENTITY="" \
-          PROVISIONING_PROFILE_SPECIFIER=""
+          PROVISIONING_PROFILE_SPECIFIER="" \
+          DEVELOPMENT_TEAM=""
 
     - name: Upload artifact
       uses: actions/upload-artifact@v4
