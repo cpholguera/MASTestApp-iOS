@@ -28,10 +28,15 @@ jobs:
 
     - name: Disable code signing in Xcode project
       run: |
-        /usr/libexec/PlistBuddy -c "Set :CODE_SIGN_IDENTITY \"\"" "MASTestApp.xcodeproj/project.pbxproj"
-        /usr/libexec/PlistBuddy -c "Set :PROVISIONING_PROFILE_SPECIFIER \"\"" "MASTestApp.xcodeproj/project.pbxproj"
-        /usr/libexec/PlistBuddy -c "Set :DEVELOPMENT_TEAM \"\"" "MASTestApp.xcodeproj/project.pbxproj"
-        /usr/libexec/PlistBuddy -c "Set :CODE_SIGN_STYLE Manual" "MASTestApp.xcodeproj/project.pbxproj"
+        /usr/libexec/PlistBuddy -c "Set :objects:CBFA8C132BDE94720047F3A3:buildSettings:CODE_SIGN_IDENTITY \"\"" "MASTestApp.xcodeproj/project.pbxproj"
+        /usr/libexec/PlistBuddy -c "Set :objects:CBFA8C132BDE94720047F3A3:buildSettings:CODE_SIGN_STYLE \"Manual\"" "MASTestApp.xcodeproj/project.pbxproj"
+        /usr/libexec/PlistBuddy -c "Set :objects:CBFA8C132BDE94720047F3A3:buildSettings:DEVELOPMENT_TEAM \"\"" "MASTestApp.xcodeproj/project.pbxproj"
+        /usr/libexec/PlistBuddy -c "Set :objects:CBFA8C132BDE94720047F3A3:buildSettings:PROVISIONING_PROFILE_SPECIFIER \"\"" "MASTestApp.xcodeproj/project.pbxproj"
+
+        /usr/libexec/PlistBuddy -c "Set :objects:CBFA8C142BDE94720047F3A3:buildSettings:CODE_SIGN_IDENTITY \"\"" "MASTestApp.xcodeproj/project.pbxproj"
+        /usr/libexec/PlistBuddy -c "Set :objects:CBFA8C142BDE94720047F3A3:buildSettings:CODE_SIGN_STYLE \"Manual\"" "MASTestApp.xcodeproj/project.pbxproj"
+        /usr/libexec/PlistBuddy -c "Set :objects:CBFA8C142BDE94720047F3A3:buildSettings:DEVELOPMENT_TEAM \"\"" "MASTestApp.xcodeproj/project.pbxproj"
+        /usr/libexec/PlistBuddy -c "Set :objects:CBFA8C142BDE94720047F3A3:buildSettings:PROVISIONING_PROFILE_SPECIFIER \"\"" "MASTestApp.xcodeproj/project.pbxproj"
 
     - name: Build the app (unsigned)
       run: |
@@ -42,8 +47,7 @@ jobs:
           -archivePath $GITHUB_WORKSPACE/build/MASTestApp.xcarchive \
           CODE_SIGNING_ALLOWED=NO \
           CODE_SIGN_IDENTITY="" \
-          PROVISIONING_PROFILE_SPECIFIER="" \
-          OTHER_CODE_SIGN_FLAGS="--deep --force --sign -"
+          PROVISIONING_PROFILE_SPECIFIER=""
 
     - name: Export IPA (unsigned)
       run: |
