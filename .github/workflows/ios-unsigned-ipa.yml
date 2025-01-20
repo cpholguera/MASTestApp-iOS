@@ -18,12 +18,17 @@ jobs:
       run: |
         brew install cocoapods
         pod install --repo-update || true
-
+    - name: Set Default Scheme
+        run: |
+          scheme_list=$(xcodebuild -list -json | tr -d "\n")
+          default=$(echo $scheme_list | ruby -e "require 'json'; puts JSON.parse(STDIN.gets)['project']['targets'][0]")
+          echo $default | cat >default
+          echo Using default scheme: $default
     - name: Build the app (unsigned)
       run: |
         xcodebuild clean archive \
           -project "MASTestApp.xcodeproj" \
-          -scheme "MASTestAppScheme" \
+          -scheme $scheme \
           -configuration Release \
           -archivePath $GITHUB_WORKSPACE/build/MASTestApp.xcarchive \
           CODE_SIGNING_ALLOWED=NO
