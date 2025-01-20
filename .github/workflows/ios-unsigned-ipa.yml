@@ -22,7 +22,7 @@ jobs:
     - name: Build the app (unsigned)
       run: |
         xcodebuild clean archive \
-          -workspace "MASTestApp.xcworkspace" \
+          -workspace "MASTestApp.xcodeproj" \
           -scheme "MASTestAppScheme" \
           -configuration Release \
           -archivePath $GITHUB_WORKSPACE/build/MASTestApp.xcarchive \
