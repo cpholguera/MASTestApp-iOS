@@ -41,7 +41,7 @@ jobs:
         xcodebuild -exportArchive \
           -archivePath $GITHUB_WORKSPACE/build/MASTestApp.xcarchive \
           -exportPath output \
-          -exportOptionsPlist ExportOptions.plist \
+          -exportOptionsPlist ExportOptionsUnsigned.plist \
           CODE_SIGNING_ALLOWED=NO
 
     - name: Upload artifact
