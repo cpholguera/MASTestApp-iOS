@@ -42,7 +42,9 @@ jobs:
           -archivePath $GITHUB_WORKSPACE/build/MASTestApp.xcarchive \
           -exportPath output \
           -exportOptionsPlist ExportOptionsUnsigned.plist \
-          CODE_SIGNING_ALLOWED=NO
+          CODE_SIGNING_ALLOWED=NO \
+          CODE_SIGN_IDENTITY="" \
+          PROVISIONING_PROFILE_SPECIFIER=""
 
     - name: Upload artifact
       uses: actions/upload-artifact@v4
