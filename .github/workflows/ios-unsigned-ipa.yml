@@ -1,0 +1,44 @@
+name: Build iOS App (Unsigned IPA)
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: |
+        brew install cocoapods
+        pod install --repo-update || true
+
+    - name: Build the app (unsigned)
+      run: |
+        xcodebuild clean archive \
+          -workspace "MASTestApp.xcworkspace" \
+          -scheme "MASTestAppScheme" \
+          -configuration Release \
+          -archivePath $GITHUB_WORKSPACE/build/MASTestApp.xcarchive \
+          CODE_SIGNING_ALLOWED=NO
+
+    - name: Export IPA (unsigned)
+      run: |
+        mkdir -p output
+        xcodebuild -exportArchive \
+          -archivePath $GITHUB_WORKSPACE/build/MASTestApp.xcarchive \
+          -exportPath output \
+          -exportOptionsPlist ExportOptions.plist \
+          CODE_SIGNING_ALLOWED=NO
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: Unsigned-iOS-App
+        path: output/*.ipa
