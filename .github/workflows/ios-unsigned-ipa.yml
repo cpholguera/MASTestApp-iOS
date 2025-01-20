@@ -28,7 +28,7 @@ jobs:
       run: |
         xcodebuild clean archive \
           -project "MASTestApp.xcodeproj" \
-          -scheme $scheme \
+          -scheme $default \
           -configuration Release \
           -archivePath $GITHUB_WORKSPACE/build/MASTestApp.xcarchive \
           CODE_SIGNING_ALLOWED=NO
