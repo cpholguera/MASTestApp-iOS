@@ -21,8 +21,12 @@ jobs:
 
     - name: Set iOS Deployment Target to 14.4
       run: |
-        sed -i '' 's/\(IPHONEOS_DEPLOYMENT_TARGET = \)[0-9.]*/\114.4;/g' MASTestApp.xcodeproj/project.pbxproj
-        echo "Deployment target set to 14.4"
+        /usr/libexec/PlistBuddy -c "Set :objects:CBFA8C102BDE94720047F3A3:buildSettings:IPHONEOS_DEPLOYMENT_TARGET 14.4" "MASTestApp.xcodeproj/project.pbxproj"
+        /usr/libexec/PlistBuddy -c "Set :objects:CBFA8C112BDE94720047F3A3:buildSettings:IPHONEOS_DEPLOYMENT_TARGET 14.4" "MASTestApp.xcodeproj/project.pbxproj"
+        /usr/libexec/PlistBuddy -c "Set :objects:CBFA8C132BDE94720047F3A3:buildSettings:IPHONEOS_DEPLOYMENT_TARGET 14.4" "MASTestApp.xcodeproj/project.pbxproj"
+        /usr/libexec/PlistBuddy -c "Set :objects:CBFA8C142BDE94720047F3A3:buildSettings:IPHONEOS_DEPLOYMENT_TARGET 14.4" "MASTestApp.xcodeproj/project.pbxproj"
+        echo "iOS Deployment Target successfully updated to 14.4"
+
 
     - name: Set Default Scheme
       run: |
