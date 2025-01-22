@@ -16,6 +16,8 @@ jobs:
 
     - name: Install dependencies
       run: |
+        brew install ldid
+        ldid -v
         brew install cocoapods
         pod install --repo-update || true
 
