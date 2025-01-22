@@ -21,7 +21,7 @@ jobs:
 
     - name: Set iOS Deployment Target to 14.4
       run: |
-        sed -i '' 's/IPHONEOS_DEPLOYMENT_TARGET = [0-9.]*/IPHONEOS_DEPLOYMENT_TARGET = 14.4;/g' MASTestApp.xcodeproj/project.pbxproj
+        sed -i '' 's/\(IPHONEOS_DEPLOYMENT_TARGET = \)[0-9.]*/\114.4;/g' MASTestApp.xcodeproj/project.pbxproj
         echo "Deployment target set to 14.4"
 
     - name: Set Default Scheme
