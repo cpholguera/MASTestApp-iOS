@@ -19,6 +19,11 @@ jobs:
         brew install cocoapods
         pod install --repo-update || true
 
+    - name: Set iOS Deployment Target to 14.4
+      run: |
+        sed -i '' 's/IPHONEOS_DEPLOYMENT_TARGET = [0-9.]*/IPHONEOS_DEPLOYMENT_TARGET = 14.4;/g' MASTestApp.xcodeproj/project.pbxproj
+        echo "Deployment target set to 14.4"
+
     - name: Set Default Scheme
       run: |
         scheme_list=$(xcodebuild -list -json | tr -d "\n")
@@ -30,21 +35,25 @@ jobs:
       run: |
         xcodebuild archive \
           -project "MASTestApp.xcodeproj" \
-          -scheme $DEFAULT_SCHEME \
-          -archivePath $GITHUB_WORKSPACE/build/MASTestApp.xcarchive \
+          -scheme "$DEFAULT_SCHEME" \
+          -archivePath "$GITHUB_WORKSPACE/build/MASTestApp.xcarchive" \
           -configuration Release \
           CODE_SIGN_IDENTITY="" \
           CODE_SIGNING_REQUIRED=NO \
           CODE_SIGNING_ALLOWED=NO
 
+    - name: Add Entitlements
+      run: |
+        ldid -Sentitlements.plist "$GITHUB_WORKSPACE/build/MASTestApp.xcarchive/Products/Applications/MASTestApp.app/MASTestApp"
+
     - name: Create IPA manually
       run: |
-        cd $GITHUB_WORKSPACE/build/MASTestApp.xcarchive/Products
+        cd "$GITHUB_WORKSPACE/build/MASTestApp.xcarchive/Products" || exit
         mv Applications Payload
-        zip -r MASTestApp.zip Payload
+        zip -r9q MASTestApp.zip Payload
         mv MASTestApp.zip MASTestApp.ipa
-        mkdir -p $GITHUB_WORKSPACE/output
-        mv MASTestApp.ipa $GITHUB_WORKSPACE/output/
+        mkdir -p "$GITHUB_WORKSPACE/output"
+        mv MASTestApp.ipa "$GITHUB_WORKSPACE/output/MASTestApp-unsigned.ipa"
 
     - name: Upload artifact
       uses: actions/upload-artifact@v4
