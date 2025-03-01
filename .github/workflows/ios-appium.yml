@@ -61,7 +61,7 @@ jobs:
           path: output/MASTestApp-unsigned.ipa
 
       - name: List Applications Directory
-        run: ls -la "$GITHUB_WORKSPACE/build/MASTestApp.xcarchive/Products/Applications/
+        run: ls -la "$GITHUB_WORKSPACE/build/MASTestApp.xcarchive/Products/Applications/"
 
       - name: Install Appium and Python Dependencies
         run: |
