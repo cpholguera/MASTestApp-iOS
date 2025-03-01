@@ -60,21 +60,6 @@ jobs:
           name: Unsigned-iOS-App
           path: output/MASTestApp-unsigned.ipa
 
-      - name: Boot Simulator
-        run: |
-          set -e
-          xcrun simctl shutdown all
-          xcrun simctl erase all
-          if ! xcrun simctl boot "iPhone 15"; then
-            echo "Failed to boot simulator 'iPhone 15'. Exiting."
-            exit 1
-          fi
-          if ! xcrun simctl bootstatus "iPhone 15" -b; then
-            echo "Simulator 'iPhone 15' did not finish booting in time. Exiting."
-            exit 1
-          fi
-
-
       - name: Install Appium and Python Dependencies
         run: |
           npm install -g appium
@@ -89,6 +74,31 @@ jobs:
           # Start Appium in the background and give it a few seconds to initialize
           appium & 
           sleep 10
+
+      - name: Set Xcode version
+        run: |
+          sudo xcode-select --switch /Applications/Xcode.app
+          xcodebuild -version
+
+      - name: Warm up iOS SDK version command
+        run: |
+          echo "Warming up xcrun..."
+          # This should output the SDK version (e.g. 17.4); if it hangs here, the issue is with Xcode/CLI tools.
+          xcrun --sdk iphonesimulator --show-sdk-version
+
+      - name: Boot Simulator
+        run: |
+          set -e
+          xcrun simctl shutdown all
+          xcrun simctl erase all
+          if ! xcrun simctl boot "iPhone 15"; then
+            echo "Failed to boot simulator 'iPhone 15'. Exiting."
+            exit 1
+          fi
+          if ! xcrun simctl bootstatus "iPhone 15" -b; then
+            echo "Simulator 'iPhone 15' did not finish booting in time. Exiting."
+            exit 1
+          fi
 
       - name: Run Appium UI Test
         env:
