@@ -60,8 +60,9 @@ jobs:
           name: Unsigned-iOS-App
           path: output/MASTestApp-unsigned.ipa
 
-      - name: List Applications Directory
-        run: ls -la "$GITHUB_WORKSPACE/build/MASTestApp.xcarchive/Products/Payload"
+      - name: Boot Simulator
+        run: |
+          xcrun simctl boot "iPhone 15" || echo "Simulator already booted"
 
       - name: Install Appium and Python Dependencies
         run: |
