@@ -22,8 +22,8 @@ def main():
     
     # Set up options using the new API
     options = XCUITestOptions()
-    options.platform_version = "17.4"        # Your IPHONEOS_DEPLOYMENT_TARGET
-    options.device_name = "iPhone Simulator"   # Adjust if needed (e.g., "iPhone 14")
+    options.platform_version = "17.4"
+    options.device_name = "iPhone 15"
     options.app = app_path
     options.no_reset = True
 
