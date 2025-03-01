@@ -63,7 +63,7 @@ jobs:
       - name: Install Appium and Python Dependencies
         run: |
           npm install -g appium
-          python3 -m pip install Appium-Python-Client
+          python3 -m pip install --break-system-packages Appium-Python-Client
 
       - name: Start Appium Server
         run: |
