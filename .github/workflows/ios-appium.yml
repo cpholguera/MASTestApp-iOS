@@ -60,10 +60,8 @@ jobs:
           name: Unsigned-iOS-App
           path: output/MASTestApp-unsigned.ipa
 
-
-      - name: Check Available Devices
-        run: |
-          xcrun simctl list devices available
+      - name: List Applications Directory
+        run: ls -la build/MASTestApp.xcarchive/Products/Applications/
 
       - name: Install Appium and Python Dependencies
         run: |
