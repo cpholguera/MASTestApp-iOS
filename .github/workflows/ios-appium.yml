@@ -83,7 +83,7 @@ jobs:
       - name: Run Appium UI Test
         env:
           # Pass the built app's path to the test script; Appium requires the .app folder.
-          APP_PATH: "$GITHUB_WORKSPACE/build/MASTestApp.xcarchive/Products/Applications/MASTestApp.app"
+          APP_PATH: "build/MASTestApp.xcarchive/Products/Applications/MASTestApp.app"
         run: |
           python3 tools/appium_script.py
 

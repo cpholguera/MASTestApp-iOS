@@ -18,8 +18,7 @@ from appium.webdriver.common.appiumby import AppiumBy
 
 def main():
     # Get the built app path from the environment variable.
-    app_path = os.getenv('APP_PATH', '$GITHUB_WORKSPACE/build/MASTestApp.xcarchive/Products/Applications/MASTestApp.app')
-    
+    app_path = os.getenv('APP_PATH')    
     # Set up options using the new API
     options = XCUITestOptions()
     options.platform_version = "17.4"
