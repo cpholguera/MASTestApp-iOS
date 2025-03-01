@@ -76,7 +76,7 @@ jobs:
           # Pass the built app's path to the test script; Appium requires the .app folder.
           APP_PATH: "$GITHUB_WORKSPACE/build/MASTestApp.xcarchive/Products/Applications/MASTestApp.app"
         run: |
-          python3 appium_script.py
+          python3 tools/appium_script.py
 
       - name: Upload Test Artifacts
         uses: actions/upload-artifact@v4
