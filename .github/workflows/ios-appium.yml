@@ -62,7 +62,18 @@ jobs:
 
       - name: Boot Simulator
         run: |
-          xcrun simctl boot "iPhone 15" || echo "Simulator already booted"
+          set -e
+          xcrun simctl shutdown all
+          xcrun simctl erase all
+          if ! xcrun simctl boot "iPhone 15"; then
+            echo "Failed to boot simulator 'iPhone 15'. Exiting."
+            exit 1
+          fi
+          if ! xcrun simctl bootstatus "iPhone 15" -b; then
+            echo "Simulator 'iPhone 15' did not finish booting in time. Exiting."
+            exit 1
+          fi
+
 
       - name: Install Appium and Python Dependencies
         run: |
