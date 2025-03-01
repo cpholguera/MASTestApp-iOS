@@ -64,6 +64,10 @@ jobs:
         run: |
           npm install -g appium
           python3 -m pip install --break-system-packages Appium-Python-Client
+      
+      - name: Install Appium Driver for XCUITest
+        run: |
+          appium driver install xcuitest
 
       - name: Start Appium Server
         run: |
