@@ -3,6 +3,8 @@ name: Xcode - Build, Run & Screenshot (Simulator Build, Unsigned)
 on:
   push:
     branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
   workflow_dispatch:
 
 jobs:
