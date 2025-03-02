@@ -113,3 +113,13 @@ jobs:
             before_start.png
             after_start.png
             final_screen.xml
+
+      - name: Generate Job Summary
+        run: |
+          BEFORE=$(base64 before_start.png | tr -d '\n')
+          AFTER=$(base64 after_start.png | tr -d '\n')
+          echo "## Job Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Test Artifacts:**" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "<table><tr><td><img src='data:image/png;base64,$BEFORE' width='300'></td><td><img src='data:image/png;base64,$AFTER' width='300'></td></tr></table>" >> $GITHUB_STEP_SUMMARY

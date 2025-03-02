@@ -34,10 +34,10 @@ def main():
 
     # Connect to Appium using the options parameter
     driver = webdriver.Remote("http://localhost:4723", options=options)
-    driver.implicitly_wait(3) # or 10
+    driver.implicitly_wait(10)
 
     # Wait for the app to load.
-    # time.sleep(5)
+    time.sleep(5)
 
     # Capture a screenshot before clicking the "Start" button.
     driver.save_screenshot("before_start.png")
