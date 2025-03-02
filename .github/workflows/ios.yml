@@ -13,6 +13,7 @@ jobs:
     env:
       BUNDLE_IDENTIFIER: org.owasp.mastestapp.MASTestApp-iOS  # Update with your actual bundle identifier
       PLATFORM: "iOS Simulator"
+      SIMULATOR: "iPhone 16"
 
     steps:
       - name: Checkout Code
@@ -33,18 +34,6 @@ jobs:
           echo "DEFAULT_SCHEME=$default" >> $GITHUB_ENV
           echo "Using default scheme: $default"
 
-      - name: Get Simulator UDID
-        id: get_simulator
-        run: |
-          # Retrieve UDID for iPhone 15 with OS:17.2 from simctl list output
-          UDID=$(xcrun simctl list devices available | grep -E "iPhone 15" | grep "OS:17.2" | sed -nE 's/.*id:([A-F0-9-]+).*/\1/p' | head -n 1)
-          if [ -z "$UDID" ]; then
-            echo "Error: No iPhone 15 with OS:17.2 found."
-            exit 1
-          fi
-          echo "Simulator UDID: $UDID"
-          echo "UDID=$UDID" >> $GITHUB_OUTPUT
-
       - name: Build App for Simulator
         run: |
           if ls -A | grep -iq "\.xcworkspace$"; then
@@ -59,13 +48,13 @@ jobs:
           xcodebuild build \
             -scheme "$DEFAULT_SCHEME" \
             -"$filetype_parameter" "$file_to_build" \
-            -destination "platform=$PLATFORM,udid=${{ steps.get_simulator.outputs.UDID }}" \
+            -destination "platform=$PLATFORM,name=$SIMULATOR" \
             CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
 
       - name: Boot Simulator
         run: |
           # Boot the selected simulator if not already booted
-          xcrun simctl boot ${{ steps.get_simulator.outputs.UDID }} || echo "Simulator already booted"
+          xcrun simctl boot "$SIMULATOR" || echo "Simulator already booted"
           # Allow time for the simulator to finish booting
           sleep 10
 
@@ -78,15 +67,15 @@ jobs:
             exit 1
           fi
           echo "Installing app from: $APP_PATH"
-          xcrun simctl install ${{ steps.get_simulator.outputs.UDID }} "$APP_PATH"
+          xcrun simctl install "$SIMULATOR" "$APP_PATH"
           echo "Launching app with bundle identifier $BUNDLE_IDENTIFIER"
-          xcrun simctl launch ${{ steps.get_simulator.outputs.UDID }} "$BUNDLE_IDENTIFIER"
+          xcrun simctl launch "$SIMULATOR" "$BUNDLE_IDENTIFIER"
 
       - name: Capture Screenshot
         run: |
           # Wait for the app to fully launch before taking a screenshot
           sleep 10
-          xcrun simctl io ${{ steps.get_simulator.outputs.UDID }} screenshot screenshot.png
+          xcrun simctl io "$SIMULATOR" screenshot screenshot.png
 
       - name: Upload Screenshot Artifact
         uses: actions/upload-artifact@v4
