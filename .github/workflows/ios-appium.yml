@@ -113,30 +113,3 @@ jobs:
             before_start.png
             after_start.png
             final_screen.xml
-
-  summarize:
-    runs-on: ubuntu-latest
-    needs: build  # Wait until the build job completes
-    steps:
-      - name: Download UI Test Artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: UI-Test-Artifacts
-          path: ./artifacts
-
-      - name: Create Job Summary
-        run: |
-
-          echo "## Job Summary" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### Test Artifacts" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-
-          # Display the two images side by side in a table
-          echo "<table><tr>" >> $GITHUB_STEP_SUMMARY
-          echo "<td><img src='./artifacts/before_start.png' width='300'></td>" >> $GITHUB_STEP_SUMMARY
-          echo "<td><img src='./artifacts/after_start.png' width='300'></td>" >> $GITHUB_STEP_SUMMARY
-          echo "</tr></table>" >> $GITHUB_STEP_SUMMARY
-
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**XML Dump:** final_screen.xml (download from artifacts)" >> $GITHUB_STEP_SUMMARY
