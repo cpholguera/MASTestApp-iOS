@@ -126,8 +126,6 @@ jobs:
 
       - name: Create Job Summary
         run: |
-          BEFORE=$(base64 ./artifacts/before_start.png | tr -d '\n')
-          AFTER=$(base64 ./artifacts/after_start.png | tr -d '\n')
 
           echo "## Job Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
@@ -136,8 +134,8 @@ jobs:
 
           # Display the two images side by side in a table
           echo "<table><tr>" >> $GITHUB_STEP_SUMMARY
-          echo "<td><img src='data:image/png;base64,$BEFORE' width='300'></td>" >> $GITHUB_STEP_SUMMARY
-          echo "<td><img src='data:image/png;base64,$AFTER' width='300'></td>" >> $GITHUB_STEP_SUMMARY
+          echo "<td><img src='./artifacts/before_start.png' width='300'></td>" >> $GITHUB_STEP_SUMMARY
+          echo "<td><img src='./artifacts/after_start.png' width='300'></td>" >> $GITHUB_STEP_SUMMARY
           echo "</tr></table>" >> $GITHUB_STEP_SUMMARY
 
           echo "" >> $GITHUB_STEP_SUMMARY
