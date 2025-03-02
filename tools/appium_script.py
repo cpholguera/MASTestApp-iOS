@@ -21,8 +21,8 @@ def main():
     app_path = os.getenv('APP_PATH')    
     # Set up options using the new API
     options = XCUITestOptions()
-    options.platform_version = "17.4"
-    options.device_name = "iPhone 15"
+    options.platform_version = "18.1"
+    options.device_name = "iPhone 16"
     options.app = app_path
     options.no_reset = True
 
