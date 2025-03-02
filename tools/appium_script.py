@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 This script uses Appium's Python client to:
-- Connect to an Appium server and start a session for an iOS app.
+- Connect to an Appium server and attach to a running iOS app.
 - Capture a screenshot before clicking a button labeled "Start".
 - Click the "Start" button.
 - Capture another screenshot after clicking.
@@ -12,30 +12,32 @@ This script uses Appium's Python client to:
 
 from appium import webdriver
 from appium.options.ios import XCUITestOptions
-import os
 import time
 from appium.webdriver.common.appiumby import AppiumBy
 
 def main():
     # Get the built app path from the environment variable.
-    # app_path = os.getenv('APP_PATH')    
-    # Set up options using the new API
+    # app_path = os.getenv('APP_PATH')
+    # options.app = app_path
+
+    # Set up options
     options = XCUITestOptions()
     options.platform_version = "18.1"
     options.device_name = "iPhone 16"
-    # options.app = app_path
+    
     # Use the bundle identifier to attach to the running app
     options.bundle_id = "org.owasp.mastestapp.MASTestApp-iOS"
     # Prevent Appium from automatically launching the app
     options.auto_launch = False
+    # Prevent Appium from resetting the app state (maybe remove)
     options.no_reset = True
 
     # Connect to Appium using the options parameter
     driver = webdriver.Remote("http://localhost:4723", options=options)
-    driver.implicitly_wait(10)
+    driver.implicitly_wait(3)
 
     # Wait for the app to load.
-    time.sleep(5)
+    # time.sleep(5)
 
     # Capture a screenshot before clicking the "Start" button.
     driver.save_screenshot("before_start.png")
