@@ -3,15 +3,13 @@ name: Xcode - Build, Run & Screenshot (Simulator Build, Unsigned)
 on:
   push:
     branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: macos-latest
     env:
-      BUNDLE_IDENTIFIER: org.owasp.mastestapp.MASTestApp-iOS
+      BUNDLE_IDENTIFIER: org.owasp.mastestapp.MASTestApp-iOS  # Update with your actual bundle identifier
       PLATFORM: "iOS Simulator"
 
     steps:
@@ -36,8 +34,16 @@ jobs:
       - name: Get Simulator UDID
         id: get_simulator
         run: |
-          # Find the UDID of the first available iPhone simulator
-          UDID=$(xcrun simctl list devices available | grep -E "iPhone" | head -1 | awk -F '[()]' '{print $2}' | tr -d ' ')
+          # Try to select an iPhone 15 with OS 17.2
+          UDID=$(xcrun simctl list devices available | grep "iPhone 15" | grep "OS 17.2" | head -1 | awk -F '[()]' '{print $2}' | tr -d ' ')
+          if [ -z "$UDID" ]; then
+            echo "No iPhone 15 with OS 17.2 found. Trying any iPhone with OS version 17.2 or higher."
+            UDID=$(xcrun simctl list devices available | grep -E "iPhone" | grep "OS 17\.[2-9]" | head -1 | awk -F '[()]' '{print $2}' | tr -d ' ')
+          fi
+          if [ -z "$UDID" ]; then
+            echo "Error: No suitable simulator with OS 17.2 or higher found."
+            exit 1
+          fi
           echo "Simulator UDID: $UDID"
           echo "UDID=$UDID" >> $GITHUB_OUTPUT
 
@@ -60,7 +66,7 @@ jobs:
 
       - name: Boot Simulator
         run: |
-          # Boot the simulator using its UDID (if not already booted)
+          # Boot the selected simulator if not already booted
           xcrun simctl boot ${{ steps.get_simulator.outputs.UDID }} || echo "Simulator already booted"
           # Allow time for the simulator to finish booting
           sleep 10
