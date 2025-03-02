@@ -19,6 +19,21 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
+      - name: Install Appium and Python Dependencies
+        run: |
+          npm install -g appium
+          python3 -m pip install --break-system-packages Appium-Python-Client
+      
+      - name: Install Appium Driver for XCUITest
+        run: |
+          appium driver install xcuitest
+
+      - name: Start Appium Server
+        run: |
+          # Start Appium in the background and give it a few seconds to initialize
+          appium & 
+          # sleep 10
+
       - name: Install Dependencies
         run: |
           brew install ldid || true
@@ -82,3 +97,19 @@ jobs:
         with:
           name: iOS-Screenshot
           path: screenshot.png
+
+      - name: Run Appium UI Test
+        env:
+          # Pass the built app's path to the test script; Appium requires the .app folder.
+          APP_PATH: "build/MASTestApp.xcarchive/Products/Payload/MASTestApp.app"
+        run: |
+          python3 tools/appium_script.py
+
+      - name: Upload Test Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: UI-Test-Artifacts
+          path: |
+            before_start.png
+            after_start.png
+            final_screen.xml
