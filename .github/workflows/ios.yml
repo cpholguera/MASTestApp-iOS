@@ -11,7 +11,7 @@ jobs:
     name: Build, Run and Capture Screenshot on iOS Simulator
     runs-on: macos-latest
     env:
-      BUNDLE_IDENTIFIER: com.example.MASTestApp  # <-- Update this with your actual bundle identifier
+      BUNDLE_IDENTIFIER: com.example.MASTestApp  # <-- Update with your actual bundle identifier
       PLATFORM: "iOS Simulator"
 
     steps:
@@ -21,16 +21,22 @@ jobs:
       - name: Set Default Scheme
         run: |
           scheme_list=$(xcodebuild -list -json | tr -d "\n")
-          default=$(echo $scheme_list | ruby -e "require 'json'; puts JSON.parse(STDIN.gets)['project']['targets'][0]")
+          default=$(echo "$scheme_list" | ruby -e "require 'json'; puts JSON.parse(STDIN.gets)['project']['targets'][0]")
           echo "$default" > default
           echo "Using default scheme: $default"
+
+      - name: Get Simulator UDID
+        id: get_simulator
+        run: |
+          # This finds the UDID of the first available iPhone simulator
+          UDID=$(xcrun simctl list devices available | grep -E "iPhone" | head -1 | awk -F '[()]' '{print $2}' | tr -d ' ')
+          echo "Simulator UDID: $UDID"
+          echo "UDID=$UDID" >> $GITHUB_OUTPUT
 
       - name: Build App
         env:
           scheme: ${{ 'default' }}
         run: |
-          # Select the first available iPhone device from xctrace output
-          device=$(xcrun xctrace list devices 2>&1 | grep -oE 'iPhone.*?[^\(]+' | head -1 | awk '{$1=$1;print}' | sed -e "s/ Simulator$//")
           if [ "$scheme" = "default" ]; then scheme=$(cat default); fi
           if ls -A | grep -iq "\.xcworkspace$"; then
             filetype_parameter="workspace"
@@ -39,29 +45,34 @@ jobs:
             filetype_parameter="project"
             file_to_build=$(ls -A | grep -i "\.xcodeproj$")
           fi
-          file_to_build=$(echo $file_to_build | awk '{$1=$1;print}')
-          xcodebuild build -scheme "$scheme" -"$filetype_parameter" "$file_to_build" -destination "platform=$PLATFORM,name=$device"
+          file_to_build=$(echo "$file_to_build" | awk '{$1=$1;print}')
+          xcodebuild build -scheme "$scheme" -"$filetype_parameter" "$file_to_build" -destination "platform=$PLATFORM,udid=${{ steps.get_simulator.outputs.UDID }}"
+
+      - name: Boot Simulator
+        run: |
+          # Boot the simulator (if not already booted)
+          xcrun simctl boot ${{ steps.get_simulator.outputs.UDID }} || echo "Simulator already booted"
+          # Give the simulator time to finish booting
+          sleep 10
 
       - name: Install and Launch App on Simulator
         run: |
-          # Wait for the simulator to be ready
-          sleep 5
-          # Attempt to locate the built .app file in DerivedData
+          # Locate the built .app file from DerivedData
           APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData -name "*.app" | head -n 1)
           if [ -z "$APP_PATH" ]; then
             echo "Error: Could not find the built .app file."
             exit 1
           fi
           echo "Installing app from: $APP_PATH"
-          xcrun simctl install booted "$APP_PATH"
+          xcrun simctl install ${{ steps.get_simulator.outputs.UDID }} "$APP_PATH"
           echo "Launching app with bundle identifier $BUNDLE_IDENTIFIER"
-          xcrun simctl launch booted "$BUNDLE_IDENTIFIER"
+          xcrun simctl launch ${{ steps.get_simulator.outputs.UDID }} "$BUNDLE_IDENTIFIER"
 
       - name: Capture Screenshot
         run: |
-          # Wait for the app to fully launch (adjust delay as needed)
+          # Wait to ensure the app has fully launched
           sleep 10
-          xcrun simctl io booted screenshot screenshot.png
+          xcrun simctl io ${{ steps.get_simulator.outputs.UDID }} screenshot screenshot.png
 
       - name: Upload Screenshot Artifact
         uses: actions/upload-artifact@v4
