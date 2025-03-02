@@ -1,43 +1,46 @@
-name: Xcode - Build, Run & Screenshot
+name: Xcode - Build, Run & Screenshot (Simulator Build, Unsigned)
 
 on:
   push:
     branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+  workflow_dispatch:
 
 jobs:
   build:
-    name: Build, Run and Capture Screenshot on iOS Simulator
     runs-on: macos-latest
     env:
-      BUNDLE_IDENTIFIER: com.example.MASTestApp  # <-- Update with your actual bundle identifier
+      BUNDLE_IDENTIFIER: org.owasp.mastestapp.MASTestApp-iOS
       PLATFORM: "iOS Simulator"
 
     steps:
-      - name: Checkout
+      - name: Checkout Code
         uses: actions/checkout@v4
+
+      - name: Install Dependencies
+        run: |
+          brew install ldid || true
+          brew install cocoapods || true
+          if [ -f Podfile ]; then
+            pod install --repo-update || true
+          fi
 
       - name: Set Default Scheme
         run: |
           scheme_list=$(xcodebuild -list -json | tr -d "\n")
           default=$(echo "$scheme_list" | ruby -e "require 'json'; puts JSON.parse(STDIN.gets)['project']['targets'][0]")
-          echo "$default" > default
+          echo "DEFAULT_SCHEME=$default" >> $GITHUB_ENV
           echo "Using default scheme: $default"
 
       - name: Get Simulator UDID
         id: get_simulator
         run: |
-          # This finds the UDID of the first available iPhone simulator
+          # Find the UDID of the first available iPhone simulator
           UDID=$(xcrun simctl list devices available | grep -E "iPhone" | head -1 | awk -F '[()]' '{print $2}' | tr -d ' ')
           echo "Simulator UDID: $UDID"
           echo "UDID=$UDID" >> $GITHUB_OUTPUT
 
-      - name: Build App
-        env:
-          scheme: ${{ 'default' }}
+      - name: Build App for Simulator
         run: |
-          if [ "$scheme" = "default" ]; then scheme=$(cat default); fi
           if ls -A | grep -iq "\.xcworkspace$"; then
             filetype_parameter="workspace"
             file_to_build=$(ls -A | grep -i "\.xcworkspace$")
@@ -46,18 +49,23 @@ jobs:
             file_to_build=$(ls -A | grep -i "\.xcodeproj$")
           fi
           file_to_build=$(echo "$file_to_build" | awk '{$1=$1;print}')
-          xcodebuild build -scheme "$scheme" -"$filetype_parameter" "$file_to_build" -destination "platform=$PLATFORM,udid=${{ steps.get_simulator.outputs.UDID }}"
+          # Build for simulator with code signing disabled
+          xcodebuild build \
+            -scheme "$DEFAULT_SCHEME" \
+            -"$filetype_parameter" "$file_to_build" \
+            -destination "platform=$PLATFORM,udid=${{ steps.get_simulator.outputs.UDID }}" \
+            CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
 
       - name: Boot Simulator
         run: |
-          # Boot the simulator (if not already booted)
+          # Boot the simulator using its UDID (if not already booted)
           xcrun simctl boot ${{ steps.get_simulator.outputs.UDID }} || echo "Simulator already booted"
-          # Give the simulator time to finish booting
+          # Allow time for the simulator to finish booting
           sleep 10
 
       - name: Install and Launch App on Simulator
         run: |
-          # Locate the built .app file from DerivedData
+          # Locate the built .app from DerivedData
           APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData -name "*.app" | head -n 1)
           if [ -z "$APP_PATH" ]; then
             echo "Error: Could not find the built .app file."
@@ -70,7 +78,7 @@ jobs:
 
       - name: Capture Screenshot
         run: |
-          # Wait to ensure the app has fully launched
+          # Wait for the app to fully launch before taking a screenshot
           sleep 10
           xcrun simctl io ${{ steps.get_simulator.outputs.UDID }} screenshot screenshot.png
 
