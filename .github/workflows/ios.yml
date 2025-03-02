@@ -3,8 +3,6 @@ name: Xcode - Build, Run & Screenshot (Simulator Build, Unsigned)
 on:
   push:
     branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
   workflow_dispatch:
 
 jobs:
@@ -36,14 +34,10 @@ jobs:
       - name: Get Simulator UDID
         id: get_simulator
         run: |
-          # Try to select an iPhone 15 with OS 17.2
-          UDID=$(xcrun simctl list devices available | grep "iPhone 15" | grep "OS 17.2" | head -1 | awk -F '[()]' '{print $2}' | tr -d ' ')
+          # Retrieve UDID for iPhone 15 with OS:17.2 from simctl list output
+          UDID=$(xcrun simctl list devices available | grep -E "iPhone 15" | grep "OS:17.2" | sed -nE 's/.*id:([A-F0-9-]+).*/\1/p' | head -n 1)
           if [ -z "$UDID" ]; then
-            echo "No iPhone 15 with OS 17.2 found. Trying any iPhone with OS version 17.2 or higher."
-            UDID=$(xcrun simctl list devices available | grep -E "iPhone" | grep "OS 17\.[2-9]" | head -1 | awk -F '[()]' '{print $2}' | tr -d ' ')
-          fi
-          if [ -z "$UDID" ]; then
-            echo "Error: No suitable simulator with OS 17.2 or higher found."
+            echo "Error: No iPhone 15 with OS:17.2 found."
             exit 1
           fi
           echo "Simulator UDID: $UDID"
