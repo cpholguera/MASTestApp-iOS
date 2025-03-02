@@ -65,7 +65,7 @@ jobs:
           xcrun simctl io booted screenshot screenshot.png
 
       - name: Upload Screenshot Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: iOS-Screenshot
           path: screenshot.png
