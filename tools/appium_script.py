@@ -18,12 +18,16 @@ from appium.webdriver.common.appiumby import AppiumBy
 
 def main():
     # Get the built app path from the environment variable.
-    app_path = os.getenv('APP_PATH')    
+    # app_path = os.getenv('APP_PATH')    
     # Set up options using the new API
     options = XCUITestOptions()
     options.platform_version = "18.1"
     options.device_name = "iPhone 16"
-    options.app = app_path
+    # options.app = app_path
+    # Use the bundle identifier to attach to the running app
+    options.bundle_id = "org.owasp.mastestapp.MASTestApp-iOS"
+    # Prevent Appium from automatically launching the app
+    options.auto_launch = False
     options.no_reset = True
 
     # Connect to Appium using the options parameter
