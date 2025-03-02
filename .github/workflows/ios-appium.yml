@@ -1,64 +1,23 @@
-name: Build iOS App and Run Appium Test
+name: Appium Test
 
 on:
   push:
-    branches:
-      - main
-  # pull_request:
-  #   branches:
-  #     - main
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: macos-latest
+    env:
+      BUNDLE_IDENTIFIER: org.owasp.mastestapp.MASTestApp-iOS
+      PLATFORM: "iOS Simulator"
+      SIMULATOR: "iPhone 16"
 
     steps:
-      - name: Checkout code
+      - name: Checkout Code
         uses: actions/checkout@v4
-
-      - name: Install dependencies
-        run: |
-          brew install ldid
-          brew install cocoapods
-          pod install --repo-update || true
-
-      - name: Set Default Scheme
-        run: |
-          scheme_list=$(xcodebuild -list -json | tr -d "\n")
-          default=$(echo $scheme_list | ruby -e "require 'json'; puts JSON.parse(STDIN.gets)['project']['targets'][0]")
-          echo "DEFAULT_SCHEME=$default" >> $GITHUB_ENV
-          echo "Using default scheme: $default"
-
-      - name: Build the app (unsigned)
-        run: |
-          xcodebuild archive \
-            -project "MASTestApp.xcodeproj" \
-            -scheme "$DEFAULT_SCHEME" \
-            -archivePath "$GITHUB_WORKSPACE/build/MASTestApp.xcarchive" \
-            -configuration Release \
-            CODE_SIGN_IDENTITY="" \
-            CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGNING_ALLOWED=NO
-
-      - name: Add Entitlements
-        run: |
-          ldid -Sentitlements.plist "$GITHUB_WORKSPACE/build/MASTestApp.xcarchive/Products/Applications/MASTestApp.app/MASTestApp"
-
-      - name: Create IPA manually
-        run: |
-          cd "$GITHUB_WORKSPACE/build/MASTestApp.xcarchive/Products" || exit
-          mv Applications Payload
-          zip -r9q MASTestApp.zip Payload
-          mv MASTestApp.zip MASTestApp.ipa
-          mkdir -p "$GITHUB_WORKSPACE/output"
-          mv MASTestApp.ipa "$GITHUB_WORKSPACE/output/MASTestApp-unsigned.ipa"
-
-      - name: Upload Build Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: Unsigned-iOS-App
-          path: output/MASTestApp-unsigned.ipa
 
       - name: Install Appium and Python Dependencies
         run: |
@@ -73,37 +32,76 @@ jobs:
         run: |
           # Start Appium in the background and give it a few seconds to initialize
           appium & 
-          sleep 10
+          # sleep 10
 
-      - name: Set Xcode version
+      - name: Install Dependencies
         run: |
-          sudo xcode-select --switch /Applications/Xcode.app
-          xcodebuild -version
+          brew install ldid || true
+          brew install cocoapods || true
+          if [ -f Podfile ]; then
+            pod install --repo-update || true
+          fi
 
-      - name: Warm up iOS SDK version command
+      - name: Set Default Scheme
         run: |
-          echo "Warming up xcrun..."
-          # This should output the SDK version (e.g. 17.4); if it hangs here, the issue is with Xcode/CLI tools.
-          xcrun --sdk iphonesimulator --show-sdk-version
+          scheme_list=$(xcodebuild -list -json | tr -d "\n")
+          default=$(echo "$scheme_list" | ruby -e "require 'json'; puts JSON.parse(STDIN.gets)['project']['targets'][0]")
+          echo "DEFAULT_SCHEME=$default" >> $GITHUB_ENV
+          echo "Using default scheme: $default"
+
+      - name: Build App for Simulator
+        run: |
+          if ls -A | grep -iq "\.xcworkspace$"; then
+            filetype_parameter="workspace"
+            file_to_build=$(ls -A | grep -i "\.xcworkspace$")
+          else
+            filetype_parameter="project"
+            file_to_build=$(ls -A | grep -i "\.xcodeproj$")
+          fi
+          file_to_build=$(echo "$file_to_build" | awk '{$1=$1;print}')
+          # Build for simulator with code signing disabled
+          xcodebuild build \
+            -scheme "$DEFAULT_SCHEME" \
+            -"$filetype_parameter" "$file_to_build" \
+            -destination "platform=$PLATFORM,name=$SIMULATOR" \
+            CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
 
       - name: Boot Simulator
         run: |
-          set -e
-          xcrun simctl shutdown all
-          xcrun simctl erase all
-          if ! xcrun simctl boot "iPhone 15"; then
-            echo "Failed to boot simulator 'iPhone 15'. Exiting."
+          # Boot the selected simulator if not already booted
+          xcrun simctl boot "$SIMULATOR" || echo "Simulator already booted"
+          # Allow time for the simulator to finish booting
+          sleep 10
+
+      - name: Install and Launch App on Simulator
+        run: |
+          # Locate the built .app from DerivedData
+          APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData -name "*.app" | head -n 1)
+          if [ -z "$APP_PATH" ]; then
+            echo "Error: Could not find the built .app file."
             exit 1
           fi
-          if ! xcrun simctl bootstatus "iPhone 15" -b; then
-            echo "Simulator 'iPhone 15' did not finish booting in time. Exiting."
-            exit 1
-          fi
+          echo "Installing app from: $APP_PATH"
+          xcrun simctl install "$SIMULATOR" "$APP_PATH"
+          echo "Launching app with bundle identifier $BUNDLE_IDENTIFIER"
+          xcrun simctl launch "$SIMULATOR" "$BUNDLE_IDENTIFIER"
+
+      - name: Capture Screenshot
+        run: |
+          # Wait for the app to fully launch before taking a screenshot
+          sleep 10
+          xcrun simctl io "$SIMULATOR" screenshot screenshot.png
+
+      - name: Upload Screenshot Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: iOS-Screenshot
+          path: screenshot.png
 
       - name: Run Appium UI Test
-        env:
+        # env: # currently not working so we attach to the running app instead
           # Pass the built app's path to the test script; Appium requires the .app folder.
-          APP_PATH: "build/MASTestApp.xcarchive/Products/Payload/MASTestApp.app"
+          # APP_PATH: "build/MASTestApp.xcarchive/Products/Applications/MASTestApp.app"
         run: |
           python3 tools/appium_script.py
 
